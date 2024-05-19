@@ -17,5 +17,8 @@
   "options_page": "option.html",
   "permissions": [
     "storage"
-  ]
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  }
 }
