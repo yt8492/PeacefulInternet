@@ -1,0 +1,17 @@
+{
+  "siteList": [
+    {
+      "urlPattern": "https://x\\.com/.*",
+      "replaceTargetList": [
+        {
+          "selectors": [
+            "div[data-testid=cellInnerDiv]"
+          ],
+          "replaceWordPattern": {
+            "な": "にゃ"
+          }
+        }
+      ]
+    }
+  ]
+}

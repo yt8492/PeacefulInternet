@@ -1,52 +1,56 @@
-import js.objects.Object
 import kotlinx.browser.document
-import kotlinx.browser.window
-import org.w3c.dom.MutationObserver
-import org.w3c.dom.MutationObserverInit
-import org.w3c.dom.Node
-
-lateinit var replaceList: List<Pair<Regex, String>>
+import kotlinx.serialization.json.Json
+import org.w3c.dom.*
 
 fun main() {
     val body = document.body ?: return
     val config = MutationObserverInit(childList = true, subtree = true)
-    window.onload = {
-        chrome.runtime.onMessage.addListener { message, _, _ ->
-            console.log(message)
-            val replaceMap = buildMap {
-                Object.keys(message).forEach {
-                    put(it, message[it])
-                }
-            }
-            console.log("replaceMap: $replaceMap")
-            replaceList = replaceMap.map {
+
+    chrome.storage.local.get("setting") { items ->
+        val rawSetting = items["setting"]?.let {
+            JSON.stringify(it)
+        } ?: return@get
+        val setting = Json.decodeFromString<Setting>(rawSetting)
+        val site = setting.siteList.find {
+            it.urlPattern.toRegex().matches(document.URL)
+        } ?: return@get
+        site.replaceTargetList.forEach { replaceTarget ->
+            val replaceWordList = replaceTarget.replaceWordPatternRef?.let {
+                setting.replaceWordPatternRef?.get(it)
+            } ?: replaceTarget.replaceWordPattern ?: return@get
+            val replaceList = replaceWordList.map {
                 it.key.toRegex() to it.value
             }
-            replaceText(body)
+            replaceElements(replaceTarget.selectors, replaceList)
             val observer = MutationObserver { mutationRecords, observer ->
                 mutationRecords.forEach { mutation ->
-                    console.log(mutation)
                     if (mutation.type == "childList") {
                         observer.disconnect()
-                        replaceText(mutation.target)
+                        replaceElements(replaceTarget.selectors, replaceList)
                         observer.observe(body, config)
                     }
                 }
             }
             observer.observe(body, config)
-            true
         }
     }
 }
 
-fun replaceText(target: Node) {
-    var child = target.firstChild
-    while (child != null) {
-        child = replaceChild(child.nextSibling, child)
+fun replaceElements(selectors: List<String>, replaceList: List<Pair<Regex, String>>) {
+    val nodes = document.querySelectorAll(selectors.joinToString(","))
+    nodes.asList().forEach {
+        replaceText(it, replaceList)
     }
 }
 
-fun replaceChild(next: Node?, node: Node?): Node? {
+fun replaceText(target: Node, replaceList: List<Pair<Regex, String>>) {
+    var child = target.firstChild
+    while (child != null) {
+        child = replaceChild(child.nextSibling, child, replaceList)
+    }
+}
+
+fun replaceChild(next: Node?, node: Node?, replaceList: List<Pair<Regex, String>>): Node? {
     if (node == null) {
         return null
     }
@@ -63,7 +67,7 @@ fun replaceChild(next: Node?, node: Node?): Node? {
         Node.ELEMENT_NODE -> {
             var child = node.firstChild
             while (child != null) {
-                child = replaceChild(child.nextSibling, child)
+                child = replaceChild(child.nextSibling, child, replaceList)
             }
             return next
         }

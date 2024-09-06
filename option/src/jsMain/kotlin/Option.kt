@@ -4,9 +4,9 @@ import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.asList
 
 fun main() {
-    chrome.storage.local.get("replaceList") { items ->
-        val replaceList = items["replaceList"]
-        if (replaceList == null) {
+    chrome.storage.local.get("setting") { items ->
+        val setting = items["setting"]
+        if (setting == null) {
             loadDefaultSetting()
         }
     }

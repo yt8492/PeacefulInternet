@@ -7,10 +7,38 @@
 <h1>Peaceful Internet 設定</h1>
 <section id="option_body">
     <div>
-        <label for="setting_json">設定ファイルを選択してください</label>
-        <input id="setting_json" name="setting_json" type="file" accept=".json" />
-        <button id="reset">設定初期化</button>
+        <p>
+            <label for="setting_json">設定ファイルを選択してください</label>
+            <input id="setting_json" name="setting_json" type="file" accept=".json" />
+        </p>
+        <p>
+            <button id="reset">設定初期化</button>
+        </p>
     </div>
+</section>
+<section id="description">
+    <h2>使い方</h2>
+    <div>
+        <p>
+            このChrome拡張は、任意のWebページの任意の要素の文字列を置き換えることができます。
+        </p>
+        <p>
+            設定のJSONファイルに置き換え対象のWebページのURLパターンと置き換え語句表を記述し、この設定ページから読み込んでください。
+        </p>
+        <p>
+            siteListは配列で、要素はurlPatternとreplaceTargetListを持ちます。
+        </p>
+        <p>
+            urlPatternは正規表現です。replaceTargetListは配列で、要素にselectorsとreplaceWordPatternを持ちます。
+        </p>
+        <p>
+            selectorsは配列で、要素にCSSセレクターの形式で置き換え対象のHTMLの要素を指定します。
+        </p>
+        <p>
+            replaceWordPatternは辞書型で、置き換え前の語句と置き換え後の語句を記述します。置き換え前の語句には正規表現を指定することができます。
+        </p>
+    </div>
+    <a href="example.json" download="example.json">example.json</a>
 </section>
 <script src="option.js"></script>
 </body>

@@ -11,7 +11,7 @@ fun saveSetting(file: File) {
         console.log(replaceMap)
         chrome.storage.local.set(
             json(
-                "replaceList" to replaceMap
+                "setting" to replaceMap
             )
         ) {}
     }
